@@ -1,35 +1,46 @@
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
-public class Client {
+public class Client implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6795028045843900305L;
 	public String ip;
 	public int port;
 	public FileList list;
+	public String files;
+	public String filepath;
 	public FileSender sender = null;
 	public Socket clientSocket;
+	public Socket trackingServerSocket;
 
 	public Client(int port, String filepath) {
 		try {
 			ip = InetAddress.getLocalHost().getHostAddress();
-			this.port = port;			
+			this.port = port;
+			this.filepath = filepath;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-
+		
 		list = new FileList(filepath);
-
+		setFiles();
+		reportToServer();
 		// Start listening incoming socket on given port
 		new ListenSocket(port);
-		// Start listening user input command
-		// new ListenCommand();
 	}
 
 	public void sendFile(){
 		try {
 			// Create a connected socket to specified IP and port
-			// Hard code it right now
+			// Hard code it right now, send file to client with port 5000
 			clientSocket = new Socket(ip, 5000);
 			
 		} catch (UnknownHostException e) {
@@ -38,14 +49,67 @@ public class Client {
 			e.printStackTrace();
 		}
 //		System.out.println(list.getFile(7));
-		sender = new FileSender(clientSocket, list.getFile(7));
+		sender = new FileSender(clientSocket, list.getFile(3));
 		sender.send();
 	}
 	
-	public static void main(String[] args) {
-		Client c1 = new Client(5000, Config.DIRECTORY);
-		Client c2 = new Client(5001, Config.DIRECTORY);
-		c1.list.getList();
-		c2.sendFile();
+	/**
+	 * Update client's information to server, include client's ip, port, file path, and file list
+	 */
+	public void reportToServer(){
+		try {
+			// Create a connected socket to tracking server's IP and port
+			trackingServerSocket = new Socket(Config.serverIP, Config.serverPort);
+			OutputStream os = trackingServerSocket.getOutputStream();  
+			ObjectOutputStream oos = new ObjectOutputStream(os); 
+			// client may receive new files, so need to update the file list before update to server
+			setFiles();
+			// The client model represents current client's information
+			ClientModel cm = new ClientModel(ip,port,filepath,files);
+			oos.writeObject(cm);  
+			oos.close();  
+			os.close();  
+			trackingServerSocket.close();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+	
+	/**
+	 *  Find the given file name on the server's record, return all the client who has the file
+	 *  Suggest to specify the file extension
+	 *  
+	 * @param fileName
+	 * @return targetClients
+	 */
+	public ArrayList<ClientModel> find(String fileName){
+		try {
+			// Create a connected socket to tracking server's IP and port
+			trackingServerSocket = new Socket(Config.serverIP, Config.serverPort);
+			OutputStream os = trackingServerSocket.getOutputStream();  
+			ObjectOutputStream oos = new ObjectOutputStream(os);   
+			oos.writeObject(fileName);  
+			oos.close();  
+			os.close();  
+			trackingServerSocket.close();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	// Set/update the file list
+	public void setFiles(){
+		files = list.getList();
+	}
+	
+//	public static void main(String[] args) {
+//		Client c1 = new Client(5000, Config.DIRECTORY);
+//		Client c2 = new Client(5001, Config.DIRECTORY);
+//		c1.list.getList();
+//		c2.sendFile();
+//	}
 }

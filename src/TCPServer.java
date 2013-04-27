@@ -10,8 +10,10 @@ public class TCPServer extends Thread {
 	}
 	
 	public void run(){
-		System.out.println("New TCP socket thread");
-		FileReceiver receiver = new FileReceiver(clientSocket, Config.SAVEPATH);
-		receiver.receive();
+		if(clientSocket.getPort()!= Config.serverPort){
+			System.out.println("Start download file");
+			FileReceiver receiver = new FileReceiver(clientSocket, Config.SAVEPATH);
+			receiver.receive();
+		}
 	}
 }

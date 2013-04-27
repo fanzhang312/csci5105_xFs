@@ -12,14 +12,18 @@ public class FileList {
 	}
 	
 	// Display the content of the given directory
-	public void getList() {
+	// return all the files' name
+	public String getList() {
+		String files = "";
 		for (File f : list) {
 			if (f.isDirectory()) {
-				System.out.println("Dir:" + f.getAbsoluteFile());
+//				System.out.println("Dir:" + f.getAbsoluteFile());
 			} else {
-				System.out.println("File:" + f.getAbsoluteFile());
+//				System.out.println("File:" + f.getAbsoluteFile());
+				files += f.getName()+"\n";
 			}
 		}
+		return files;
 	}
 	
 	// return a full path to the file
