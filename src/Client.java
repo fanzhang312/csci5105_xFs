@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -37,6 +39,9 @@ public class Client implements Serializable{
 		new ListenSocket(port);
 	}
 
+	/**
+	 * Create a socket connection with requested client, and send file by class FileSender
+	 */
 	public void sendFile(){
 		try {
 			// Create a connected socket to specified IP and port
@@ -88,15 +93,36 @@ public class Client implements Serializable{
 		try {
 			// Create a connected socket to tracking server's IP and port
 			trackingServerSocket = new Socket(Config.serverIP, Config.serverPort);
+			// Send out the file name
 			OutputStream os = trackingServerSocket.getOutputStream();  
 			ObjectOutputStream oos = new ObjectOutputStream(os);   
-			oos.writeObject(fileName);  
+			oos.writeObject(fileName);    
+			
+			// Receive the result: ArrayList<ClientModel>
+			InputStream is = trackingServerSocket.getInputStream();
+			ObjectInputStream ois = new ObjectInputStream(is);
+			ArrayList<ClientModel> newObj = (ArrayList<ClientModel>) ois.readObject();
+			if(newObj.isEmpty()){
+				System.out.println("No result found for: " + fileName);
+			}else{
+				System.out.println("Receive client list who has: " + fileName);
+				for(ClientModel cm:newObj){
+					System.out.println(cm.ip+":"+cm.port);
+				}
+			}
+			ois.close();
+			is.close();
 			oos.close();  
-			os.close();  
+			os.close();
 			trackingServerSocket.close();
+			
+			return newObj;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

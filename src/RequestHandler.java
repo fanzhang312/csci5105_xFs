@@ -1,6 +1,8 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -26,8 +28,8 @@ public class RequestHandler extends Thread{
 	public void receiveMsg(){
 		try {
 			InputStream is = socket.getInputStream();
-			ObjectInputStream os = new ObjectInputStream(is);
-			Object newObj = os.readObject();
+			ObjectInputStream ois = new ObjectInputStream(is);
+			Object newObj = ois.readObject();
 			if (newObj instanceof ClientModel) {
 				// Always perform add when ClientModel receive to update client information
 				ClientModel client = (ClientModel) newObj;
@@ -48,8 +50,17 @@ public class RequestHandler extends Thread{
 				String filename = (String) newObj;
 				System.out.println("Start to find file: "+filename);
 				ArrayList<ClientModel> targets = server.find(filename);
+				if(targets.isEmpty()){
+					System.out.println("No result found: "+filename);
+				}
+				// Send the result back
+				OutputStream os = socket.getOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(os); 
+				oos.writeObject(targets);  
+				oos.close();  
+				os.close();  
 			} 
-			os.close();
+			ois.close();
 			is.close();
 			socket.close();
 		} catch (IOException e) {
