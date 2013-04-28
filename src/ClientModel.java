@@ -17,6 +17,7 @@ public class ClientModel implements Serializable{
 	int port;
 	String filePath;
 	String fileList;
+	int load;
 	Dictionary checksums = new Hashtable();
 	
 	public ClientModel(String ip, int port, String filePath, String fileList){
@@ -49,6 +50,12 @@ public class ClientModel implements Serializable{
 	}
 	public void setFileList(String fileList) {
 		this.fileList = fileList;
+	}
+	public int getLoad(){
+		return load;
+	}
+	public void setLoad(int load){
+		this.load = load;
 	}
 	public Dictionary getChecksums() {
 		return checksums;

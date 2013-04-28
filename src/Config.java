@@ -12,4 +12,6 @@ public class Config {
 	
 	public static String serverIP;
 	public static int serverPort = 5150;
+	// Current client interact with user
+	public static int clientPort;
 }

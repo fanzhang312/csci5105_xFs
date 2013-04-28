@@ -9,10 +9,12 @@ public class FileSender {
 	Socket socket;
 	// filepath should be a full path to a file
 	String filepath;
+	Client client;
 
-	public FileSender(Socket socket, String filepath) {
+	public FileSender(Socket socket, String filepath, Client c) {
 		this.socket = socket;
 		this.filepath = filepath;
+		client = c;
 	}
 
 	public void send() {
@@ -20,6 +22,7 @@ public class FileSender {
 		OutputStream os = null;
 		FileInputStream fins = null;
 		try {
+			client.load++;
 			os = socket.getOutputStream();
 			// First send out file name
 			File f = new File(filepath);
@@ -41,6 +44,7 @@ public class FileSender {
 				os.write(data);
 			}
 			System.out.println("Success: send out " + filename);
+			client.load--;
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

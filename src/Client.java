@@ -14,14 +14,17 @@ public class Client implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 6795028045843900305L;
+	public int load;
 	public String ip;
 	public int port;
 	public FileList list;
 	public String files;
 	public String filepath;
+	public String tempName;
 	public FileSender sender = null;
 	public Socket clientSocket;
 	public Socket trackingServerSocket;
+	public ArrayList<ClientModel> targetClients = new ArrayList<ClientModel>();
 
 	public Client(int port, String filepath) {
 		try {
@@ -31,30 +34,30 @@ public class Client implements Serializable{
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		
+		load = 0;
+		tempName = "";
 		list = new FileList(filepath);
 		setFiles();
 		reportToServer();
-		// Start listening incoming socket on given port
-		new ListenSocket(port);
+		// Start listening incoming socket on given port for file transfer purpose
+		new ListenSocket(port, this);
+		// Start listening incoming socket on given port for get load or download command purpose
+		new ListenSocket(port+1, this);
 	}
 
 	/**
 	 * Create a socket connection with requested client, and send file by class FileSender
 	 */
-	public void sendFile(){
+	public void sendFile(String ip, int port){
 		try {
 			// Create a connected socket to specified IP and port
-			// Hard code it right now, send file to client with port 5000
-			clientSocket = new Socket(ip, 5000);
-			
+			clientSocket = new Socket(ip, port);			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		System.out.println(list.getFile(7));
-		sender = new FileSender(clientSocket, list.getFile(3));
+		sender = new FileSender(clientSocket, list.getList(tempName), this);
 		sender.send();
 	}
 	
@@ -90,6 +93,7 @@ public class Client implements Serializable{
 	 * @return targetClients
 	 */
 	public ArrayList<ClientModel> find(String fileName){
+		tempName = fileName;
 		try {
 			// Create a connected socket to tracking server's IP and port
 			trackingServerSocket = new Socket(Config.serverIP, Config.serverPort);
@@ -115,7 +119,7 @@ public class Client implements Serializable{
 			oos.close();  
 			os.close();
 			trackingServerSocket.close();
-			
+			targetClients = newObj;
 			return newObj;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -127,15 +131,79 @@ public class Client implements Serializable{
 		}
 		return null;
 	}
-	// Set/update the file list
+	// Set or update the file list
 	public void setFiles(){
 		files = list.getList();
 	}
 	
-//	public static void main(String[] args) {
-//		Client c1 = new Client(5000, Config.DIRECTORY);
-//		Client c2 = new Client(5001, Config.DIRECTORY);
-//		c1.list.getList();
-//		c2.sendFile();
-//	}
+	// set current load 
+	public int load(){
+		System.out.println("Current client load: " + load);
+		return load;
+	}
+	
+	// get load of the clients and combine with the latency table, find the 'best' client
+	public ClientModel getLoad(){
+		ClientModel freeClient = null;
+		int minLoad = 100;
+		// Create a socket connection to every client in the targetClients and get load of each client
+		for(ClientModel target : targetClients){
+			try {
+				Socket s = new Socket(target.ip, target.port+1);
+				OutputStream os = s.getOutputStream();  
+				ObjectOutputStream oos = new ObjectOutputStream(os);   
+				oos.writeObject("load"); 
+				InputStream is = s.getInputStream();
+				ObjectInputStream ois = new ObjectInputStream(is);
+				int clientLoad = (Integer) ois.readObject();
+				target.setLoad(clientLoad);
+				// Get the min load client
+				if(clientLoad<minLoad){
+					minLoad = clientLoad;
+					freeClient = target;
+				}
+				ois.close();
+				is.close();
+				oos.close();
+				os.close();
+				s.close();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		return freeClient;
+	}
+	// send download request
+	public void download(){
+		if(!targetClients.isEmpty()){
+			ClientModel target = getLoad();
+			// Create a socket connection to the target client and request sendFile()
+			try {
+				Thread.sleep(1000);
+				Socket s = new Socket(target.ip, target.port+1);
+				OutputStream os = s.getOutputStream();  
+				ObjectOutputStream oos = new ObjectOutputStream(os);   
+				oos.writeObject("download"); 
+				oos.close();
+				os.close();
+				s.close();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			System.out.println("Don't find a client has specified file");
+		}
+	}
+	
 }

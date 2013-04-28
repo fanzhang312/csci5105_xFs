@@ -10,13 +10,17 @@ import java.net.ServerSocket;
  */
 public class ListenSocket extends Thread {
 	public ServerSocket serverSocket;
+	public Client client;
+	public int port;
 	
-	public ListenSocket(int port){
+	public ListenSocket(int port, Client c){
 		try {
 			serverSocket = new ServerSocket(port);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.port = port;
+		client = c;
 		start();
 	}
 	
@@ -24,7 +28,10 @@ public class ListenSocket extends Thread {
 		while(true){
 			System.out.println("waiting incoming socket on port: "+ serverSocket.getLocalPort());
         	try {
-				new TCPServer(serverSocket.accept());
+        		if(client.port == port)
+        			new TCPServer(serverSocket.accept());
+        		else
+        			new CommandServer(serverSocket.accept(), client);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

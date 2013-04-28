@@ -25,7 +25,19 @@ public class FileList {
 		}
 		return files;
 	}
-	
+	public String getList(String name) {
+		String files = "";
+		for (File f : list) {
+			if (f.isDirectory()) {
+//				System.out.println("Dir:" + f.getAbsoluteFile());
+			} else {
+//				System.out.println("File:" + f.getAbsoluteFile());
+				if(f.getAbsolutePath().contains(name))
+					files = f.getAbsolutePath();
+			}
+		}
+		return files;
+	}
 	// return a full path to the file
 	public String getFile(int index){
 		int length = list.length;
