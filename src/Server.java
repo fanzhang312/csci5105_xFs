@@ -30,7 +30,7 @@ public class Server extends Thread{
 	
 	public void run(){
 		while(true){
-			System.out.println("Server is waiting incoming socket on port: "+ serverSocket.getLocalPort());
+			System.out.println("\nServer is waiting incoming socket on port: "+ serverSocket.getLocalPort());
         	try {
         		 new RequestHandler(serverSocket.accept(), this);
 			} catch (IOException e) {
@@ -55,6 +55,9 @@ public class Server extends Thread{
 		return targets;
 	}
 	public static void main(String[] args){
+		Config.setLatency();
+		Config.printLatency();
 		new Server(Config.serverPort);
+		
 	}
 }

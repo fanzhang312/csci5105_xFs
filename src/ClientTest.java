@@ -1,5 +1,4 @@
 //import java.rmi.RemoteException;
-import java.io.Serializable;
 import java.util.Scanner;
 
 /**
@@ -8,7 +7,7 @@ import java.util.Scanner;
  * @author Fan Zhang, Zhiqi Chen
  */
 
-public class ClientTest implements Serializable {
+public class ClientTest {
 	public static Client client;
 
 	public static boolean isInteger(String str) {
@@ -80,19 +79,18 @@ public class ClientTest implements Serializable {
 		}
 		client = new Client(Integer.parseInt(port), Config.DIRECTORY);
 		Config.clientPort = Integer.parseInt(port);
-		new Client(Integer.parseInt(port) + 5, Config.DIRECTORY);
-		new Client(Integer.parseInt(port) + 10, Config.DIRECTORY);
-		new Client(Integer.parseInt(port) + 15, Config.DIRECTORY);
+		for(int i=1; i<Config.NUMBER; i++){
+			new Client(Integer.parseInt(port) + 2*i, Config.DIRECTORY);
+		}
+		
 		try {
+			// Sleep for a while in order to makes the output looks more neatly, since each client is a new thread
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		System.out.println("Create client success!");
 
-//		client.sendFile();
-		// client.reportToServer();
-//		client.find("Bestlla.pdf");
 	}
 
 	// Print a menu for user to choose
@@ -163,6 +161,11 @@ public class ClientTest implements Serializable {
 			createClient();
 			while (true) {
 				clientMenu();
+				try {
+					Thread.sleep(1200);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			System.out.println("Thanks for using Client Console!");

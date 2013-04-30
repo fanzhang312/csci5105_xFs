@@ -35,12 +35,15 @@ public class RequestHandler extends Thread{
 				ClientModel client = (ClientModel) newObj;
 				// remove old object
 				if(!server.clientList.isEmpty()){
+					ArrayList<ClientModel> deleteList = new ArrayList<ClientModel>();
 					for(ClientModel cm : server.clientList){
 						// distinguish clients by port number
 						if(cm.port == client.port){
-							server.clientList.remove(cm);
+//							server.clientList.remove(cm);
+							deleteList.add(cm);
 						}
 					}
+					server.clientList.removeAll(deleteList);
 				}
 	
 			    server.clientList.add(client);
@@ -50,7 +53,7 @@ public class RequestHandler extends Thread{
 				String filename = (String) newObj;
 				System.out.println("Start to find file: "+filename);
 				ArrayList<ClientModel> targets = server.find(filename);
-				if(targets.isEmpty()){
+				if(targets.isEmpty()||targets==null){
 					System.out.println("No result found: "+filename);
 				}
 				// Send the result back

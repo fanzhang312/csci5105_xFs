@@ -28,7 +28,7 @@ public class CommandServer extends Thread {
 				String command = (String) ois.readObject();
 				if(command.equals("download")){
 					System.out.println(clientSocket.getInetAddress().toString());
-					client.sendFile(clientSocket.getInetAddress().toString().substring(1), 5000);
+					client.sendFile(clientSocket.getInetAddress().toString().substring(1), Config.clientPort);
 				}else{
 					// Send current client load back
 					int load = client.load();

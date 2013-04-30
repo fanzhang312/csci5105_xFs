@@ -57,6 +57,7 @@ public class Client implements Serializable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println("======================="+tempName);	
 		sender = new FileSender(clientSocket, list.getList(tempName), this);
 		sender.send();
 	}
@@ -142,13 +143,16 @@ public class Client implements Serializable{
 		return load;
 	}
 	
-	// get load of the clients and combine with the latency table, find the 'best' client
+	// PEER SELECTION: get load of the clients and combine with the latency table, find the 'best' client
 	public ClientModel getLoad(){
 		ClientModel freeClient = null;
-		int minLoad = 100;
+		int mixLoadLatency = 5000;
 		// Create a socket connection to every client in the targetClients and get load of each client
 		for(ClientModel target : targetClients){
+			// Get the Latency from latency table
+			int currentLatency = Config.latency[Math.abs(this.port-Config.clientPort)/2][Math.abs(target.port-Config.clientPort)/2];
 			try {
+				// Get load use another port number
 				Socket s = new Socket(target.ip, target.port+1);
 				OutputStream os = s.getOutputStream();  
 				ObjectOutputStream oos = new ObjectOutputStream(os);   
@@ -157,9 +161,9 @@ public class Client implements Serializable{
 				ObjectInputStream ois = new ObjectInputStream(is);
 				int clientLoad = (Integer) ois.readObject();
 				target.setLoad(clientLoad);
-				// Get the min load client
-				if(clientLoad<minLoad){
-					minLoad = clientLoad;
+				// Get the min load/latency client
+				if(clientLoad/10*0.5+currentLatency/4900*0.5<mixLoadLatency){
+					mixLoadLatency = (int) (clientLoad/10*0.5+currentLatency/4900*0.5);
 					freeClient = target;
 				}
 				ois.close();
@@ -172,7 +176,6 @@ public class Client implements Serializable{
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
