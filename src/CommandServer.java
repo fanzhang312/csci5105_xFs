@@ -26,13 +26,13 @@ public class CommandServer extends Thread {
 				OutputStream os = clientSocket.getOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(os);
 				String command = (String) ois.readObject();
-				if(command.equals("download")){
-					System.out.println(clientSocket.getInetAddress().toString());
-					client.sendFile(clientSocket.getInetAddress().toString().substring(1), Config.clientPort);
-				}else{
+				if(command.equals("load")){
 					// Send current client load back
 					int load = client.load();
-					oos.writeObject(Integer.valueOf(load));  
+					oos.writeObject(Integer.valueOf(load)); 
+				}else{
+					System.out.println(clientSocket.getInetAddress().toString());
+					client.sendFile(clientSocket.getInetAddress().toString().substring(1), Config.clientPort, command);
 				}
 				ois.close();
 				is.close();

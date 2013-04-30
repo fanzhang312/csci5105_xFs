@@ -48,7 +48,7 @@ public class Client implements Serializable{
 	/**
 	 * Create a socket connection with requested client, and send file by class FileSender
 	 */
-	public void sendFile(String ip, int port){
+	public void sendFile(String ip, int port, String filename){
 		try {
 			// Create a connected socket to specified IP and port
 			clientSocket = new Socket(ip, port);			
@@ -57,8 +57,7 @@ public class Client implements Serializable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("======================="+tempName);	
-		sender = new FileSender(clientSocket, list.getList(tempName), this);
+		sender = new FileSender(clientSocket, list.getList(filename), this);
 		sender.send();
 	}
 	
@@ -192,7 +191,7 @@ public class Client implements Serializable{
 				Socket s = new Socket(target.ip, target.port+1);
 				OutputStream os = s.getOutputStream();  
 				ObjectOutputStream oos = new ObjectOutputStream(os);   
-				oos.writeObject("download"); 
+				oos.writeObject(tempName); 
 				oos.close();
 				os.close();
 				s.close();
