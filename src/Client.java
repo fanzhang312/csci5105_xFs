@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 public class Client implements Serializable{
 	/**
@@ -25,6 +27,7 @@ public class Client implements Serializable{
 	public Socket clientSocket;
 	public Socket trackingServerSocket;
 	public ArrayList<ClientModel> targetClients = new ArrayList<ClientModel>();
+	public Dictionary checksums = new Hashtable();
 
 	public Client(int port, String filepath) {
 		try {
@@ -38,6 +41,7 @@ public class Client implements Serializable{
 		tempName = "";
 		list = new FileList(filepath);
 		setFiles();
+		new Checksum(this).setAll();
 		reportToServer();
 		// Start listening incoming socket on given port for file transfer purpose
 		new ListenSocket(port, this);
@@ -74,10 +78,12 @@ public class Client implements Serializable{
 			setFiles();
 			// The client model represents current client's information
 			ClientModel cm = new ClientModel(ip,port,filepath,files);
+			cm.setChecksums(checksums);
 			oos.writeObject(cm);  
 			oos.close();  
 			os.close();  
 			trackingServerSocket.close();
+			System.out.println("Client information has been updated to server");
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

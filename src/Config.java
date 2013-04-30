@@ -10,7 +10,10 @@ public class Config {
 	// Define the local storage directory
 	public static final String DIRECTORY = "/Users/fan/Documents/";
 	// Define the directory you want to save the download file
+	//(If you are running code in the same machine, savepath should be differ with directory)
 	public static final String SAVEPATH = "/Users/fan/Documents/receive/";
+	// If you run the code in different machines, you need to use the below line of SAVEPATH
+//	public static final String SAVEPATH = DIRECTORY;
 	// Specify number of client
 	public static final int NUMBER = 5;
 	

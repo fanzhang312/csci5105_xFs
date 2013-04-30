@@ -3,7 +3,10 @@ import java.net.ServerSocket;
 
 /**
  * ListenSocket class create a infinite loop to listen incoming sockets
- * Once receive an incoming socket, start a new thread(TCPServer) to handle it.
+ * Once receive an incoming socket, start a new thread(TCPServer or CommandServer) to handle it.
+ * 
+ * TCPServer in charges of downloading files
+ * CommandServer in charges of receiving download or get load requests
  * 
  * @author Fan Zhang, Zhiqi Chen
  *

@@ -27,6 +27,8 @@ public class FileSender {
 			// First send out file name
 			File f = new File(filepath);
 			String filename = f.getName();
+			String checksum = (String) client.checksums.get(filename);
+			os.write(checksum.getBytes());
 			os.write(filename.getBytes());
 			try {
 				// force to sleep 500ms to make sure the file name send out
