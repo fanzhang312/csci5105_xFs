@@ -5,6 +5,12 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Generate checksum and provide method to store file name and corresponding checksum value
+ * 
+ * @author Fan Zhang, Zhiqi Chen
+ *
+ */
 public class Checksum {
 	public Client client;
 	public MessageDigest md;

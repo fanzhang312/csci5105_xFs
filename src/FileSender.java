@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
+/**
+ * Client side program response for send file to requested client
+ * 
+ * @author Fan Zhang, Zhiqi Chen
+ *
+ */
 public class FileSender {
 	// TCP socket
 	Socket socket;

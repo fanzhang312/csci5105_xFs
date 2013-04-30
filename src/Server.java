@@ -4,17 +4,24 @@ import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
-
-public class Server extends Thread{
+/**
+ * Server class call the Config file to generate the latency table, creates
+ * server socket and handle each incoming sockets with a new thread. So server
+ * can handle multiple client requests at the same time.
+ * 
+ * @author Fan Zhang, Zhiqi Chen
+ * 
+ */
+public class Server extends Thread {
 	public String ip;
 	public int port;
 	public ServerSocket serverSocket;
 	public ArrayList<ClientModel> clientList = new ArrayList<ClientModel>();
-	
-	public Server(int port){
+
+	public Server(int port) {
 		try {
 			ip = InetAddress.getLocalHost().getHostAddress();
-			this.port = port;	
+			this.port = port;
 			Config.serverIP = ip;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -24,40 +31,44 @@ public class Server extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		start();
 	}
-	
-	public void run(){
-		while(true){
-			System.out.println("\nServer is waiting incoming socket on port: "+ serverSocket.getLocalPort());
-        	try {
-        		 new RequestHandler(serverSocket.accept(), this);
+
+	public void run() {
+		while (true) {
+			System.out.println("\nServer is waiting incoming socket on port: "
+					+ serverSocket.getLocalPort());
+			try {
+				new RequestHandler(serverSocket.accept(), this);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
-	public ArrayList<ClientModel> find(String filename){
+
+	// Find method return all the client who has the requested file name
+	public ArrayList<ClientModel> find(String filename) {
 		ArrayList<ClientModel> targets = new ArrayList<ClientModel>();
-		if(clientList.isEmpty())
+		if (clientList.isEmpty())
 			return null;
-		for(ClientModel cm : clientList){
-			if(cm.fileList.contains(filename)){
+		for (ClientModel cm : clientList) {
+			if (cm.fileList.contains(filename)) {
 				targets.add(cm);
-				System.out.println("Find the given file on client with port: "+ cm.port);
+				System.out.println("Find the given file on client with port: "
+						+ cm.port);
 			}
 		}
-		if(targets.isEmpty()){
-			System.out.println("Can't find the given file: "+filename);
+		if (targets.isEmpty()) {
+			System.out.println("Can't find the given file: " + filename);
 		}
 		return targets;
 	}
-	public static void main(String[] args){
+
+	public static void main(String[] args) {
 		Config.setLatency();
 		Config.printLatency();
 		new Server(Config.serverPort);
-		
+
 	}
 }

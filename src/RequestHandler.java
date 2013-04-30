@@ -6,7 +6,14 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-
+/**
+ * Server side socket program. Perform two kinds of incoming requests.
+ * Update client information: Client information are stored in a ClientModel class which could be serialize.
+ * Perform find() operation on server side.
+ * 
+ * @author Fan Zhang, Zhiqi Chen
+ *
+ */
 public class RequestHandler extends Thread{
 	public Socket socket;
 	public Server server;
