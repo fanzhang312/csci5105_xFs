@@ -186,7 +186,7 @@ public class Client implements Serializable {
 	// table, find the 'best' client
 	public ClientModel getLoad() {
 		ClientModel freeClient = null;
-		int mixLoadLatency = 5000;
+		double mixLoadLatency = 5000.0;
 		// Create a socket connection to every client in the targetClients and
 		// get load of each client
 		for (ClientModel target : targetClients) {
@@ -205,8 +205,8 @@ public class Client implements Serializable {
 				int clientLoad = (Integer) ois.readObject();
 				target.setLoad(clientLoad);
 				// Get the min load/latency client
-				if (clientLoad / 10 * 0.5 + currentLatency / 4900 * 0.5 < mixLoadLatency) {
-					mixLoadLatency = (int) (clientLoad / 10 * 0.5 + currentLatency / 4900 * 0.5);
+				if (clientLoad / 10.0 * 0.5 + currentLatency / 4900.0 * 0.5 < mixLoadLatency) {
+					mixLoadLatency = (clientLoad / 10 * 0.5 + currentLatency / 4900 * 0.5);
 					freeClient = target;
 				}
 				ois.close();
