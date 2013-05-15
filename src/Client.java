@@ -240,6 +240,7 @@ public class Client implements Serializable {
 				Socket s = new Socket(target.ip, target.port + 1);
 				OutputStream os = s.getOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(os);
+				tempName = tempName+":"+this.port;
 				oos.writeObject(tempName);
 				oos.close();
 				os.close();

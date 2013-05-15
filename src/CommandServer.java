@@ -40,8 +40,11 @@ public class CommandServer extends Thread {
 					// Download requests send the file name as socket message
 					System.out
 							.println(clientSocket.getInetAddress().toString());
+					String commandArray[] = command.split(":");
+					System.out.println(commandArray[0]+" "+commandArray[1]);
+					System.out.println();
 					client.sendFile(clientSocket.getInetAddress().toString()
-							.substring(1), Config.clientPort, command);
+							.substring(1), Integer.parseInt(commandArray[1]), commandArray[0]);
 				}
 				ois.close();
 				is.close();
